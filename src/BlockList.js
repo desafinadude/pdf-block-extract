@@ -1,6 +1,6 @@
 import React from "react";
 
-function BlockList({ blocks, updateBlock, deleteBlock }) {
+function BlockList({ blocks, renameBlock, deleteBlock, copyBlock }) {
   return (
     <div className="block-list">
       <h3>Blocks</h3>
@@ -8,17 +8,9 @@ function BlockList({ blocks, updateBlock, deleteBlock }) {
         {blocks.map((block, index) => (
           <li key={index}>
             <span>{block.label}</span>
-            <button onClick={() => deleteBlock(index)}>Delete</button>
-            <button
-              onClick={() => {
-                const newLabel = prompt("Rename Block:", block.label);
-                if (newLabel) {
-                  updateBlock(index, { ...block, label: newLabel });
-                }
-              }}
-            >
-              Rename
-            </button>
+            <button onClick={() => deleteBlock(block,index)}>Delete</button>
+            <button onClick={() => renameBlock(block,index)}>Rename</button>
+            <button onClick={() => copyBlock(index)}>Copy</button>
           </li>
         ))}
       </ul>

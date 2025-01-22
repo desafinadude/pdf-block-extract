@@ -20,6 +20,14 @@ function App() {
 		});
 	};
 
+	const renameBlock = (block,index) => {
+		const newLabel = prompt("Rename Block:", block.label);
+		if (newLabel) {
+			updateBlock(index, { ...block, label: newLabel });
+		}
+	}
+	
+
 	const updateBlock = (index, updatedBlock) => {
 		setBlocksByPage((prev) => {
 			const currentBlocks = prev[pageNum] || [];
@@ -29,12 +37,16 @@ function App() {
 		});
 	};
 
-	const deleteBlock = (index) => {
+	const deleteBlock = (block,index) => {
 		setBlocksByPage((prev) => {
 			const currentBlocks = prev[pageNum] || [];
 			const newBlocks = currentBlocks.filter((_, i) => i !== index);
 			return { ...prev, [pageNum]: newBlocks };
 		});
+	};
+
+	const copyBlock = (index) => {
+		console.log("copyBlock", index);
 	};
 
 	const exportBlocks = () => {
@@ -45,6 +57,10 @@ function App() {
 		link.download = "blocks.json";
 		link.click();
 	};
+
+	useEffect(() => {
+		console.log(blocksByPage);
+	},[blocksByPage]);
 
 	return (
 		<div className="App">
@@ -59,8 +75,9 @@ function App() {
 			/>
 			<BlockList
 				blocks={blocksByPage[pageNum] || []}
-				updateBlock={updateBlock}
+				renameBlock={renameBlock}
 				deleteBlock={deleteBlock}
+				copyBlock={copyBlock}
 			/>
 			<div className="viewer-container">
 				<PDFViewer
