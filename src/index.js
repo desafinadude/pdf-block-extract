@@ -77,9 +77,7 @@ function App() {
 		link.click();
 	};
 
-	useEffect(() => {
-		console.log(blocksByPage);
-	},[blocksByPage]);
+
 
 	return (
 		<div className="App">

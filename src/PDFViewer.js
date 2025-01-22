@@ -186,11 +186,10 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
 
     return (
         <div className="pdf-viewer" style={{ position: "relative" }}>
-            {/* PDF canvas */}
             <canvas ref={canvasRef} style={{ position: "absolute", top: 0, left: 0 }} />
 
-            {/* Block container */}
             <div
+                className="draw-canvas"
                 ref={containerRef}
                 style={{
                     position: "absolute",
