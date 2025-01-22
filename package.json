@@ -1,0 +1,22 @@
+{
+  "name": "react-starter",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.14",
+    "interactjs": "^1.10.27",
+    "pdfjs-dist": "^3.2.146",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.13.3",
+    "buffer": "^5.5.0||^6.0.0",
+    "parcel": "^2.8.3",
+    "process": "^0.11.10"
+  }
+}

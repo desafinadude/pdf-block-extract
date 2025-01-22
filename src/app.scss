@@ -1,0 +1,13 @@
+.pdf-viewer {
+  position: relative;
+ 
+}
+
+.drawing-block {
+  border: 2px dashed blue;
+  background: rgba(0, 0, 255, 0.1);
+}
+
+.draw-canvas {
+  z-index: 100;
+}
