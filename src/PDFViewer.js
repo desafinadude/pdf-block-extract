@@ -216,7 +216,9 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
                             border: "2px solid red",
                             background: "rgba(255, 0, 0, 0.1)",
                         }}
-                    ></div>
+                    >
+                        {block.label}
+                    </div>
                 ))}
             </div>
         </div>
