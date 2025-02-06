@@ -1,3 +1,14 @@
+$primary: #023047;
+$secondary: #ffb703;
+
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "dark": rgb(0, 0, 0),
+);
+
+
 @import "bootstrap/scss/bootstrap";
 
 .pdf-viewer {
@@ -14,3 +25,39 @@
   z-index: 100;
   border: 1px solid green;
 }
+
+
+.block-label {
+  position: absolute;
+  top: -14px;
+  left: 0;
+  font-size: 8px;
+  padding: 2px 8px;
+  background-color: #333;
+  color: #fff;
+}
+
+tr.active-block td {
+  background-color: rgba(0,0,0,0.05) !important;
+}
+
+.block {
+  border: 1px solid red;
+  background: rgba(255, 0, 0, 0.1);
+
+  &.session {
+    border: 1px solid green;
+    background: rgba(0, 255, 0, 0.1);
+  }
+
+  &.musos {
+    border: 1px solid blue;
+    background: rgba(0, 0, 255, 0.1);
+  }
+
+  &.tracks {
+    border: 1px solid yellow;
+    background: rgba(255, 255, 0, 0.1);
+  }
+}
+

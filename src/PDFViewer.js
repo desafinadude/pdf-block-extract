@@ -1,13 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
 import interact from "interactjs";
 
-function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
+function PDFViewer({ pdfDoc, pageNum, blocks, setBlocks }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [startCoords, setStartCoords] = useState(null);
     const [altPressed, setAltPressed] = useState(false); // Tracks Alt key status
-    const blocks = blocksByPage[pageNum] || [];
+
+    // Filter blocks for the current page
+    const blocksForPage = blocks.filter((block) => block.page === pageNum);
 
     // Render PDF page
     useEffect(() => {
@@ -38,7 +40,7 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
         }
     }, [pageNum]);
 
-    // Setup Interact.js for resizing and moving, and enable/disable based on Alt key
+    // Setup Interact.js for resizing and moving
     useEffect(() => {
         if (!containerRef.current) return;
 
@@ -50,17 +52,19 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
                     listeners: {
                         move(event) {
                             const { target } = event;
-                            const blockIndex = target.dataset.index;
+                            const uid = target.dataset.uid;
 
-                            setBlocksByPage((prev) => {
-                                const updatedBlocks = [...prev[pageNum]];
-                                updatedBlocks[blockIndex] = {
-                                    ...updatedBlocks[blockIndex],
-                                    x: parseFloat(target.style.left) + event.dx,
-                                    y: parseFloat(target.style.top) + event.dy,
-                                };
-                                return { ...prev, [pageNum]: updatedBlocks };
-                            });
+                            setBlocks((prev) =>
+                                prev.map((block) =>
+                                    block.uid === uid
+                                        ? {
+                                            ...block,
+                                            x: parseFloat(target.style.left) + event.dx,
+                                            y: parseFloat(target.style.top) + event.dy,
+                                        }
+                                        : block
+                                )
+                            );
                         },
                     },
                     modifiers: [
@@ -75,30 +79,38 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
                     listeners: {
                         move(event) {
                             const { target } = event;
-                            const blockIndex = target.dataset.index;
+                            const uid = target.dataset.uid;
 
-                            setBlocksByPage((prev) => {
-                                const updatedBlocks = [...prev[pageNum]];
-                                const block = updatedBlocks[blockIndex];
-                                updatedBlocks[blockIndex] = {
-                                    ...block,
-                                    x: parseFloat(target.style.left),
-                                    y: parseFloat(target.style.top),
-                                    width: event.rect.width,
-                                    height: event.rect.height,
-                                };
-                                return { ...prev, [pageNum]: updatedBlocks };
-                            });
+                            const deltaLeft = event.deltaRect.left || 0;
+                            const deltaTop = event.deltaRect.top || 0;
 
+                            setBlocks((prev) =>
+                                prev.map((block) =>
+                                    block.uid === uid
+                                        ? {
+                                            ...block,
+                                            x: block.x + deltaLeft, // Adjust x for left resizing
+                                            y: block.y + deltaTop, // Adjust y for top resizing
+                                            width: event.rect.width,
+                                            height: event.rect.height,
+                                        }
+                                        : block
+                                )
+                            );
+
+                            // Apply the changes to the element's style
                             target.style.width = `${event.rect.width}px`;
                             target.style.height = `${event.rect.height}px`;
+                            target.style.left = `${parseFloat(target.style.left) + deltaLeft}px`;
+                            target.style.top = `${parseFloat(target.style.top) + deltaTop}px`;
                         },
                     },
+
                 });
         } else {
             interactable.draggable(false).resizable(false); // Disable interactions
         }
-    }, [altPressed, pageNum, setBlocksByPage]);
+    }, [altPressed, pageNum, setBlocks]);
 
     // Keydown and Keyup listeners for Alt key
     useEffect(() => {
@@ -170,11 +182,10 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
         setStartCoords(null);
 
         if (width > 0 && height > 0) {
-            setBlocksByPage((prev) => {
-                const updatedBlocks = [...(prev[pageNum] || [])];
-                updatedBlocks.push({ x, y, width, height });
-                return { ...prev, [pageNum]: updatedBlocks };
-            });
+            setBlocks((prev) => [
+                ...prev,
+                { page: pageNum, x, y, width, height, uid: crypto.randomUUID() },
+            ]);
 
             const overlay = containerRef.current;
             const existingBlock = overlay.querySelector(".drawing-block");
@@ -201,11 +212,11 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
             >
-                {blocks.map((block, index) => (
+                {blocksForPage.map((block) => (
                     <div
-                        key={index}
-                        data-index={index}
-                        className="block"
+                        key={block.uid}
+                        data-uid={block.uid}
+                        className={`block ${block.label}`}
                         style={{
                             position: "absolute",
                             left: `${block.x}px`,
@@ -213,10 +224,34 @@ function PDFViewer({ pdfDoc, pageNum, blocksByPage, setBlocksByPage }) {
                             width: `${block.width}px`,
                             height: `${block.height}px`,
                             border: "2px solid red",
-                            background: "rgba(255, 0, 0, 0.1)",
+                            display: "flex",
+                            flexDirection: "column"
                         }}
                     >
-                        {block.label}
+                        <div className="block-label">{block.label}</div>
+
+                        {/* Draw Table Inside Block */}
+                        {block.table && (
+                            <div style={{
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${block.table.cols}, 1fr)`,
+                                gridTemplateRows: `repeat(${block.table.rows}, 1fr)`,
+                                width: "100%",
+                                height: "100%"
+                            }}>
+                                {block.table.data.flat().map((_, i) => (
+                                    <div key={i} style={{
+                                        border: "1px solid black",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "12px"
+                                    }}>
+                                        {i + 1}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

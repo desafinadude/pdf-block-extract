@@ -7,12 +7,16 @@
     "build": "parcel build src/index.html"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "autoprefixer": "^10.4.14",
     "bootstrap": "^5.3.3",
     "interactjs": "^1.10.27",
     "pdfjs-dist": "^3.2.146",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.8",
+    "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
